@@ -1,3 +1,19 @@
+#需要导入的包
+npm i sass @craco/craco -D 
+npm i react-redux @reduxjs/toolkit axios antd react-router-dom
+
+#项目目录结构
+-src
+  -apis           项目接口函数
+  -assets         项目资源文件，比如，图片等
+  -components     通用组件
+  -pages          页面组件
+  -store          集中状态管理
+  -utils          工具，比如，token、axios 的封装等
+  -App.js         根组件
+  -index.css      全局样式
+  -index.js       项目入口
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
