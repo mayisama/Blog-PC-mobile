@@ -1,8 +1,8 @@
-#需要导入的包
+# 需要导入的包
 npm i sass @craco/craco -D 
 npm i react-redux @reduxjs/toolkit axios antd react-router-dom
 
-#项目目录结构
+# 项目目录结构
 -src
   -apis           项目接口函数
   -assets         项目资源文件，比如，图片等
