@@ -1,18 +1,19 @@
 // redux中编写获取token的异步获取和同步修改
 import { createSlice } from '@reduxjs/toolkit'
 import { request } from '@/utils'
+import { setToken as _setToken, getToken } from '@/utils'
 
 const userStore = createSlice({
     name: 'user',
     initialState: {
-        token: localStorage.getItem('token_key') || '',
+        token: getToken() || '',
     },
     // 同步修改方法
     reducers: {
         //Token持久化，redux存一份，localStorage存一份
         setToken(state, action) {
             state.token = action.payload
-            localStorage.setItem('token_key', action.payload)
+            _setToken(action.payload)
         }
     }
 })
