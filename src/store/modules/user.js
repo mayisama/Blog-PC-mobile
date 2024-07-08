@@ -5,12 +5,14 @@ import { request } from '@/utils'
 const userStore = createSlice({
     name: 'user',
     initialState: {
-        token: '',
+        token: localStorage.getItem('token_key') || '',
     },
     // 同步修改方法
     reducers: {
+        //Token持久化，redux存一份，localStorage存一份
         setToken(state, action) {
             state.token = action.payload
+            localStorage.setItem('token_key', action.payload)
         }
     }
 })
