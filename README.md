@@ -13,7 +13,7 @@ npm i react-redux @reduxjs/toolkit axios antd react-router-dom
   -App.js         根组件  
   -index.css      全局样式  
   -index.js       项目入口  
-  
+</pre>  
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
