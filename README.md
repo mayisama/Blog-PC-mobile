@@ -1,6 +1,6 @@
 # 需要导入的包
 npm i sass @craco/craco -D  
-npm i react-redux @reduxjs/toolkit axios antd react-router-dom
+npm i react-redux @reduxjs/toolkit axios antd react-router-dom normalize.css
 
 # 项目目录结构
 -src  
