@@ -1,6 +1,6 @@
 // redux中编写获取token的异步获取和同步修改
 import { createSlice } from '@reduxjs/toolkit'
-import { request } from '@/utils'
+import { removeToken, request } from '@/utils'
 import { setToken as _setToken, getToken } from '@/utils'
 
 const userStore = createSlice({
@@ -18,13 +18,18 @@ const userStore = createSlice({
         },
         setUserInfo(state, action) {
             state.userInfo = action.payload
+        },
+        clearUserInfo(state) {
+            state.token = ''
+            state.userInfo = {}
+            removeToken()
         }
     }
 })
 
 // 解构出 actionCreater
 
-const { setToken, setUserInfo } = userStore.actions
+const { setToken, setUserInfo, clearUserInfo } = userStore.actions
 
 // 异步方法 完成登录获取token
 const getLogin = (loginForm) => {
@@ -45,6 +50,6 @@ const getUserInfo = () => {
 
 const userReducer = userStore.reducer
 
-export { getLogin, getUserInfo, setToken }
+export { getLogin, getUserInfo, setToken, clearUserInfo }
 
 export default userReducer 
