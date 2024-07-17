@@ -7,7 +7,8 @@ import {
     Input,
     Upload,
     Space,
-    Select
+    Select,
+    message
 } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { Link } from 'react-router-dom'
@@ -15,21 +16,42 @@ import './index.scss'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { use } from 'echarts'
-import { getChannelAPI } from '@/apis/article'
-import { useEffect, useState } from 'react'
+import { createArticleAPI } from '@/apis/article'
+import { useState } from 'react'
+import { useChannel } from '@/hooks/useChannel'
 
 const { Option } = Select
 
 const Publish = () => {
-    const [channelList, setChannelList] = useState([])
+    const { channelList } = useChannel();
 
-    useEffect(() => {
-        const getChannelList = async () => {
-            const res = await getChannelAPI();
-            setChannelList(res.data.channels);
-        };
-        getChannelList();
-    }, []);
+    const onFinish = (formValue) => {
+        //校验封面类型imageType是否和实际的图片列表imageList数量是相等的
+        if (imageList.length !== imageType) return message.warning('请上传正确数量的封面图片')
+
+        const { title, content, channel_id } = formValue;
+        const reqData = {
+            title,
+            content,
+            cover: {
+                type: imageType, // 几张图
+                images: imageList.map(item => item.response.data.url), //图片列表，看输出的数据结构map映射成正确的url的数组
+            },
+            channel_id,
+        }
+        createArticleAPI(reqData)
+    }
+
+
+    const [imageList, setImageList] = useState([])
+    const onChange = (value) => {
+        setImageList(value.fileList)
+    }
+
+    const [imageType, setImageType] = useState(0)
+    const onTypeChange = (e) => {
+        setImageType(e.target.value)
+    }
 
     return (
         <div className="publish">
@@ -45,7 +67,8 @@ const Publish = () => {
                 <Form
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 16 }}
-                    initialValues={{ type: 1 }}
+                    initialValues={{ type: 0 }} // type: 0 无图 1 单图 3 三图
+                    onFinish={onFinish}
                 >
                     <Form.Item
                         label="标题"
@@ -64,6 +87,32 @@ const Publish = () => {
                             {channelList.map(item => <Option key={item.id} value={item.id}>{item.name}</Option>)}
                         </Select>
                     </Form.Item>
+
+                    <Form.Item label="封面">
+                        <Form.Item name="type">
+                            <Radio.Group onChange={onTypeChange}>
+                                <Radio value={1}>单图</Radio>
+                                <Radio value={3}>三图</Radio>
+                                <Radio value={0}>无图</Radio>
+                            </Radio.Group>
+                        </Form.Item>
+                        {/* listType:决定选择文件框的外观样式
+                            showUploadList:控制显示上传列表 */}
+                        {imageType > 0 && <Upload
+                            listType="picture-card"
+                            showUploadList
+                            action={'http://geek.itheima.net/v1_0/upload'}
+                            name='image'
+                            onChange={onChange}
+                            maxCount={imageType}
+                        >
+                            <div style={{ marginTop: 8 }}>
+                                <PlusOutlined />
+                            </div>
+                        </Upload>
+                        }
+                    </Form.Item>
+
                     <Form.Item
                         label="内容"
                         name="content"
