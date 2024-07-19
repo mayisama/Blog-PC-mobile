@@ -93,14 +93,46 @@ const Article = () => {
         }
     ]
     const [List, setList] = useState([])
+
+    const [reqData, setReqData] = useState({
+        status: '',
+        channel_id: '',
+        begin_pubdate: '',
+        end_pubdate: '',
+        page: 1,
+        per_page: 10,
+    })
+
     useEffect(() => {
         async function getList() {
-            const res = await getArticlesAPI()
+            const res = await getArticlesAPI(reqData)
             setList(res.data.results)
             setCount(res.data.total_count)
         }
         getList()
-    }, [])
+    }, [reqData])
+
+    // 筛选文章列表
+    const onFinish = async (formValue) => {
+        console.log(formValue)
+        // 1. 准备参数
+        const { channel_id, date, status } = formValue
+        setReqData({
+            ...reqData,
+            status: status,
+            channel_id: channel_id,
+            begin_pubdate: date[0].format('YYYY-MM-DD'),
+            end_pubdate: date[1].format('YYYY-MM-DD')
+        })
+    }
+    
+    const onPageChange = (page) => {
+        setReqData({
+            ...reqData,
+            page: page
+        })
+    }
+
     return (
         <div>
             <Card
@@ -112,7 +144,7 @@ const Article = () => {
                 }
                 style={{ marginBottom: 20 }}
             >
-                <Form initialValues={{ status: '' }}>
+                <Form initialValues={{ status: '' }} onFinish={onFinish}>
                     <Form.Item label="状态" name="status">
                         <Radio.Group>
                             <Radio value={''}>全部</Radio>
@@ -146,7 +178,13 @@ const Article = () => {
 
             {/* 表格区域 */}
             <Card title={`根据筛选条件共查询到 ${count} 条结果：`}>
-                <Table rowKey="id" columns={columns} dataSource={List} />
+                <Table rowKey="id" columns={columns} dataSource={List} pagination={
+                    {
+                        total: count,
+                        pageSize: reqData.per_page,
+                        onChange: onPageChange,
+                    }
+                }/>
             </Card>
         </div>
     )
