@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select } from 'antd'
+import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Popconfirm } from 'antd'
 // 引入汉化包 时间选择器显示中文
 import locale from 'antd/es/date-picker/locale/zh_CN'
 // 导入资源
@@ -7,7 +7,7 @@ import { Table, Tag, Space } from 'antd'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
 import { useEffect, useState } from 'react'
-import { getArticlesAPI } from '@/apis/article'
+import { getArticlesAPI, delArticleAPI } from '@/apis/article'
 import { useChannel } from '@/hooks/useChannel'
 
 const { Option } = Select
@@ -66,12 +66,20 @@ const Article = () => {
                 return (
                     <Space size="middle">
                         <Button type="primary" shape="circle" icon={<EditOutlined />} />
-                        <Button
-                            type="primary"
-                            danger
-                            shape="circle"
-                            icon={<DeleteOutlined />}
-                        />
+                        <Popconfirm
+                            title="删除文章"
+                            description="确认删除该条文章吗?"
+                            onConfirm={() => onConfirm(data.id)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <Button
+                                type="primary"
+                                danger
+                                shape="circle"
+                                icon={<DeleteOutlined />}
+                            />
+                        </Popconfirm>
                     </Space>
                 )
             }
@@ -101,6 +109,11 @@ const Article = () => {
         }
         getList()
     }, [])
+
+    // 删除
+    const onConfirm = (id) => {
+        delArticleAPI(id)
+    }
     return (
         <div>
             <Card
