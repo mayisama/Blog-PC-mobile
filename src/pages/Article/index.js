@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, Breadcrumb, Form, Button, Radio, DatePicker, Select, Popconfirm } from 'antd'
 // 引入汉化包 时间选择器显示中文
 import locale from 'antd/es/date-picker/locale/zh_CN'
@@ -14,6 +14,7 @@ const { Option } = Select
 const { RangePicker } = DatePicker
 
 const Article = () => {
+    const navigate = useNavigate()
     const { channelList } = useChannel()
     const [count, setCount] = useState(0)
     // 定义状态枚举
@@ -65,7 +66,13 @@ const Article = () => {
             render: data => {
                 return (
                     <Space size="middle">
-                        <Button type="primary" shape="circle" icon={<EditOutlined />} />
+                        {/* 编辑按钮 */}
+                        <Button type="primary"
+                            shape="circle"
+                            icon={<EditOutlined />}
+                            onClick={() => navigate(`/publish?id=${data.id}`)}
+                        />
+                        {/* 删除按钮 */}
                         <Popconfirm
                             title="删除文章"
                             description="确认删除该条文章吗?"
@@ -135,6 +142,7 @@ const Article = () => {
     }
 
     const onPageChange = (page) => {
+        // 修改参数依赖项 引发数据的重新获取列表渲染
         setReqData({
             ...reqData,
             page: page
@@ -143,8 +151,13 @@ const Article = () => {
 
 
     // 删除
-    const onConfirm = (id) => {
-        delArticleAPI(id)
+    const onConfirm = async (id) => {
+        // 用promise保证先删除后再获取列表的同步操作
+        await delArticleAPI(id)
+        // 删除后重新获取列表
+        setReqData({
+            ...reqData,
+        })
     }
     return (
         <div>
