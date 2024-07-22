@@ -11,13 +11,12 @@ import {
     message
 } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import './index.scss'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { use } from 'echarts'
-import { createArticleAPI } from '@/apis/article'
-import { useState } from 'react'
+import { createArticleAPI, getArticleById, updateArticleAPI } from '@/apis/article'
+import { useState, useEffect } from 'react'
 import { useChannel } from '@/hooks/useChannel'
 
 const { Option } = Select
@@ -35,11 +34,26 @@ const Publish = () => {
             content,
             cover: {
                 type: imageType, // 几张图
-                images: imageList.map(item => item.response.data.url), //图片列表，看输出的数据结构map映射成正确的url的数组
+                // 这里url的数据结构只是新增文章的时候的数据结构，编辑文章的时候的数据结构是不一样的 
+                images: imageList.map(item => {
+                    if (item.response) {
+                        return item.response.data.url
+                    }
+                    else {
+                        return item.url
+                    }
+                }), //图片列表，看输出的数据结构map映射成正确的url的数组
             },
             channel_id,
         }
-        createArticleAPI(reqData)
+        // 有id就是编辑，没有就是新增
+        if (articleId) {
+            updateArticleAPI({ ...reqData, id: articleId })
+        }
+        else {
+            createArticleAPI(reqData)
+        }
+        message.success(`${articleId ? '编辑' : '发布'}文章成功`)
     }
 
 
@@ -53,13 +67,46 @@ const Publish = () => {
         setImageType(e.target.value)
     }
 
+    //useSearchParams钩子用于读取和修改当前位置 URL 中的查询字符串。 searchParams对象的get方法来获取URL查询参数中id键对应的值。
+    // 例如，如果URL是https://example.com/article?id=123，那么searchParams.get('id')将会返回字符串"123"
+    const [searchParams] = useSearchParams()
+    const articleId = searchParams.get('id')
+    const [form] = Form.useForm()
+    useEffect(() => {
+        // 1. 通过id获取数据
+        async function getArticleDetail() {
+            const res = await getArticleById(articleId)
+            // 优化一下，减少查询次数
+            const data = res.data
+
+            const { cover } = data
+            form.setFieldsValue({
+                ...data,
+                type: cover.type
+            })
+            // 为什么现在的写法无法回填封面?
+            // 数据结构的问题 set方法->{type:3}  cover:{ type:3}}
+
+            // 回填图片列表
+            setImageType(cover.type)
+            // 显示图片 ({url : url})
+            setImageList(cover.images.map(url => ({ url })))
+        }
+        // 只有有id的时候才调用函数回填
+        if (articleId) {
+            // 2. 调用实例方法 完成回填
+            getArticleDetail()
+        }
+
+    }, [articleId, form])
+
     return (
         <div className="publish">
             <Card
                 title={
                     <Breadcrumb items={[
                         { title: <Link to={'/'}>首页</Link> },
-                        { title: '发布文章' },
+                        { title: `${articleId ? '编辑' : '发布'}文章` },
                     ]}
                     />
                 }
@@ -69,6 +116,7 @@ const Publish = () => {
                     wrapperCol={{ span: 16 }}
                     initialValues={{ type: 0 }} // type: 0 无图 1 单图 3 三图
                     onFinish={onFinish}
+                    form={form}
                 >
                     <Form.Item
                         label="标题"
@@ -105,6 +153,7 @@ const Publish = () => {
                             name='image'
                             onChange={onChange}
                             maxCount={imageType}
+                            fileList={imageList}
                         >
                             <div style={{ marginTop: 8 }}>
                                 <PlusOutlined />

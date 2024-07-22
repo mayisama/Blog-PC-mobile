@@ -27,10 +27,27 @@ export function getArticlesAPI(params) {
         params
     })
 }
-
+// 4.删除文章
 export function delArticleAPI(id) {
     return request({
         url: `/mp/articles/${id}`,
         method: 'DELETE'
+    })
+}
+
+// 5.获取文章详情
+export function getArticleById(id) {
+    return request({
+        url: `/mp/articles/${id}`,
+        // 因为默认是get请求，所以不用写method
+    })
+}
+
+// 6.更新文章表单
+export function updateArticleAPI(data) {
+    return request({
+        url: `/mp/articles/${data.id}?draft=flase`,
+        method: 'PUT',
+        data
     })
 }

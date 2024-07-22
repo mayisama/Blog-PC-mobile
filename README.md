@@ -2,6 +2,15 @@
 npm i sass @craco/craco -D  
 npm i react-redux @reduxjs/toolkit axios antd react-router-dom normalize.css echarts react-quill@2.0.0-beta.2(--legacy-peer-deps)
 
+# 打包
+npm run build
+## 项目本地预览
+npm i -g serve
+
+## 打包体积分析
+npm i source-map-explorer (--legacy-peer-deps)
+npm run analyze
+
 # 项目目录结构
 -src  
 <pre>  -apis           项目接口函数  
